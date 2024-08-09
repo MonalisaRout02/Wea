@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <link rel="stylesheet" href="/styles/main.css">
+</head>
+<body>
+    <section>
+
+        <div class="container" >
+            <div class="form">
+                <form id="myForm" action="/GetLL" method="post">
+                    <input type="text" name="name" placeholder="Enter the region" autofocus autocomplete="off">
+                    
+                </form>
+            </div>
+    
+            <div class="weather">
+                <% if(locals.region) { %>
+                   <h2><%= region %></h2>
+                <% } else { %>
+                   <h2>No region data</h2>
+                <% } %>
+             </div>
+             
+             <div class="svg">
+                <% if(locals.temp) { %>
+                   <div class="box">
+                      <% if(temp > 20) { %>
+                         <img src="/styles/sunny.svg" alt="sunny">
+                      <% } else if(temp > 0) { %>
+                         <img src="/styles/clouds.svg" alt="clouds">
+                      <% } else { %>
+                         <img src="/styles/north.svg" alt="cold">
+                      <% } %>
+                      <h2 class="temperature"><%= temp %>°c</h2>
+                   </div>
+                <% } else { %>
+                   <div class="box">
+                      <h2 class="temperature">No temperature data</h2>
+                   </div>
+                <% } %>
+             </div>
+             <div class="container2">
+                <div class="cont1">
+                    <%  if(locals.minTemp && locals.maxTemp && locals.humidity){ %>
+                        <p>Min Temp - <%=minTemp  %>°c</p>
+                        <p>Max Temp - <%=maxTemp  %>°c</p>
+                        <p>Humidity - <%=humidity %>%</p>
+                         <% } %>
+                         
+                   </div>
+                   <div class="cont2">
+                    <%  if(locals.minTemp && locals.maxTemp && locals.humidity){ %>
+                        <p>Pressure - <%=pressure  %>hPa</p>
+                        <p>Windspeed - <%=windSpeed  %>meter/sec</p>
+                        <p>WindAngle - <%=windAngle%>°</p>
+                         <% } %>
+                   </div>
+               </div>
+               </div>
+       
+       <script>
+       
+
+
+// document.addEventListener('DOMContentLoaded', () => {
+//     if ("geolocation" in navigator) {
+//         navigator.geolocation.getCurrentPosition(async (position) => {
+//             const { latitude, longitude } = position.coords;
+//             console.log("User location:", latitude, longitude);
+
+//             try {
+//                 const response = await fetch(`http://localhost:3000?lat=${latitude}&lon=${longitude}`);
+//                 if (!response.ok) {
+//                     throw new Error(`HTTP error! status: ${response.status}`);
+//                 }
+//                 const data = await response.json();
+//                 console.log(data);
+
+//                 const cont1Element = document.querySelector(".container2 .cont1");
+//                 const cont2Element = document.querySelector(".container2 .cont2");
+//                 const weatherElement = document.querySelector(".weather h2");
+//                 const temperatureElement = document.querySelector(".temperature");
+//                 const weatherIcon = document.querySelector(".svg .box img");
+
+//                 if (weatherElement && data.region) {
+//                     weatherElement.textContent = data.region;
+//                 }
+
+//                 if (temperatureElement && data.temp !== undefined) {
+//                     temperatureElement.textContent = `${data.temp}°c`;
+//                 }
+//                 if (cont1Element) {
+//                     cont1Element.innerHTML = `
+//                         <p>Min Temp - ${data.minTemp || 'N/A'}°c</p>
+//                         <p>Max Temp - ${data.maxTemp || 'N/A'}°c</p>
+//                         <p>Humidity - ${data.humidity || 'N/A'}%</p>
+//                     `;
+//                 } else {
+//                     console.error("Element '.container2 .cont1' not found.");
+//                 }
+
+//                 if (cont2Element) {
+//                     cont2Element.innerHTML = `
+//                         <p>Pressure - ${data.pressure || 'N/A'} hPa</p>
+//                         <p>Windspeed - ${data.windSpeed || 'N/A'} meter/sec</p>
+//                         <p>WindAngle - ${data.windAngle || 'N/A'}°</p>
+//                     `;
+//                 } else {
+//                     console.error("Element '.container2 .cont2' not found.");
+//                 }
+//                 if (weatherIcon) {
+//                     if (data.temp > 20) {
+//                         weatherIcon.src = "/styles/sunny.svg";
+//                     } else if (data.temp > 0) {
+//                         weatherIcon.src = "/styles/clouds.svg";
+//                     } else {
+//                         weatherIcon.src = "/styles/north.svg";
+//                     }
+//                 }
+
+//             } catch (error) {
+//                 console.error("Failed to fetch weather data:", error.message);
+//             }
+//         }, (error) => {
+//             console.error("Error getting geolocation:", error.message);
+//         });
+//     } else {
+//         console.log("Geolocation is not available");
+//     }
+// });
+
+document.addEventListener('DOMContentLoaded', () => {
+    if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(async (position) => {
+            const { latitude, longitude } = position.coords;
+            console.log("User location:", latitude, longitude);
+
+            try {
+                const response = await fetch(`http://localhost:3000?lat=${latitude}&lon=${longitude}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                console.log(data);
+
+                const cont1Element = document.querySelector(".container2 .cont1");
+                const cont2Element = document.querySelector(".container2 .cont2");
+                const weatherElement = document.querySelector(".weather h2");
+                const temperatureElement = document.querySelector(".temperature");
+                const weatherIcon = document.querySelector(".svg .box img");
+
+                if (weatherElement) {
+                    weatherElement.textContent = data.region || 'Region not found';
+                } else {
+                    console.error("Element '.weather h2' not found.");
+                }
+
+                if (temperatureElement) {
+                    temperatureElement.textContent = `${data.temp || 'N/A'}°c`;
+                } else {
+                    console.error("Element '.temperature' not found.");
+                }
+
+                if (cont1Element) {
+                    cont1Element.innerHTML = `
+                        <p>Min Temp - ${data.minTemp || 'N/A'}°c</p>
+                        <p>Max Temp - ${data.maxTemp || 'N/A'}°c</p>
+                        <p>Humidity - ${data.humidity || 'N/A'}%</p>
+                    `;
+                } else {
+                    console.error("Element '.container2 .cont1' not found.");
+                }
+
+                if (cont2Element) {
+                    cont2Element.innerHTML = `
+                        <p>Pressure - ${data.pressure || 'N/A'} hPa</p>
+                        <p>Windspeed - ${data.windSpeed || 'N/A'} meter/sec</p>
+                        <p>WindAngle - ${data.windAngle || 'N/A'}°</p>
+                    `;
+                } else {
+                    console.error("Element '.container2 .cont2' not found.");
+                }
+
+                if (weatherIcon) {
+                    let iconPath = '';
+                    if (data.temp > 20) {
+                        iconPath = "/styles/sunny.svg";
+                    } else if (data.temp > 0) {
+                        iconPath = "/styles/clouds.svg";
+                    } else {
+                        iconPath = "/styles/north.svg";
+                    }
+                    weatherIcon.src = iconPath;
+                    console.log("Weather icon set to:", iconPath);
+                } else {
+                    console.error("Element '.svg .box img' not found.");
+                }
+
+            } catch (error) {
+                console.error("Failed to fetch weather data:", error.message);
+            }
+        }, (error) => {
+            console.error("Error getting geolocation:", error.message);
+        });
+    } else {
+        console.log("Geolocation is not available");
+    }
+});
+
+
+
+
+    </script>
+    </section>
+
+        
+   
+   
+</body>
+</html>
